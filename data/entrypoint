@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+set -eo pipefail
+[[ "$TRACE" ]] && set -x
+
+run_escape_to() {
+  exec $@
+}
+
+run_openvpn() {
+  exec openvpn $@
+}
+
+main() {
+  case "$1" in
+  escto)
+    shift; run_escape_to $@;;
+  *)
+    run_openvpn $@;;
+  esac
+}
+
+main "$@"

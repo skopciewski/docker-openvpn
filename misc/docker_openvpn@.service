@@ -1,11 +1,22 @@
 [Unit]
 Description=OpenVPN Docker Container
-After=network.target docker.socket
+
+# Requirements
 Requires=docker.socket
 
+# Dependency ordering
+After=network.target docker.socket
+
 [Service]
+# Let processes take awhile to start up (for first run Docker containers)
+TimeoutStartSec=0
+
 RestartSec=10
 Restart=always
+
+# Change killmode from "control-group" to "none" to let Docker remove
+# work correctly.
+KillMode=none
 
 Environment="NAME=openvpn-%i"
 Environment="DATA_VOL=openvpn-data-%i"
@@ -23,7 +34,7 @@ ExecStartPre=-/usr/bin/docker rm -f $NAME
 ExecStartPre=-/usr/bin/docker pull $IMG
 
 # Main process
-ExecStart=/usr/bin/docker run -d --volumes-from ${DATA_VOL} --name ${NAME} -p ${PORT} ${IMG}
+ExecStart=/usr/bin/docker run -d --volumes-from ${DATA_VOL} --name ${NAME} -p ${PORT} --cap-add=NET_ADMIN ${IMG}
 
 [Install]
 WantedBy=multi-user.target

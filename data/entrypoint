@@ -2,6 +2,10 @@
 set -eo pipefail
 [[ "$TRACE" ]] && set -x
 
+out() {
+  echo "** $@"
+}
+
 run_escape_to() {
   exec "$@"
 }
@@ -9,12 +13,63 @@ run_escape_to() {
 make_tun_device() {
   mkdir -p /dev/net
   if [ ! -c /dev/net/tun ]; then
-      mknod /dev/net/tun c 10 200
+    out "Creating /dev/net/tun"
+    mknod /dev/net/tun c 10 200
   fi
+}
+
+find_ccd_files() {
+  echo $(find $OPENVPN_HOME/ccd -type f)
+}
+
+get_client_ip_from_ccd_file() {
+  local ccd_file="$1"
+  echo $(grep "^ifconfig-push" $ccd_file | cut -d' ' -f2)
+}
+
+get_redirect_all_traffic_flag_from_ccd_file() {
+  local ccd_file="$1"
+  grep -q "^push\s*\"redirect-gateway" $ccd_file
+  if [[ $? -eq 0 ]]; then
+    echo "yes"
+  else
+    echo "no"
+  fi
+}
+
+get_interface_name() {
+  echo $(ip -4 -o addr | grep -v "\bbrd\b" | grep -v "\blo\b" | cut -d' ' -f2 | sed -n '1p')
+}
+
+setup_forwarding_for_ip() {
+  local client_ip="$1"
+  local interface=$(get_interface_name)
+  out "Enable forwarding for: ${client_ip} on ${interface}"
+  iptables -t nat -C POSTROUTING -s ${client_ip}/24 -o ${interface} -j MASQUERADE || {
+    iptables -t nat -A POSTROUTING -s ${client_ip}/24 -o ${interface} -j MASQUERADE
+  }
+}
+
+setup_forwarding_if_needed() {
+  local ccd_file="$1"
+  local client_ip=$(get_client_ip_from_ccd_file "$ccd_file")
+  local redirect_all_traffic=$(get_redirect_all_traffic_flag_from_ccd_file "$ccd_file")
+  if [[ "$redirect_all_traffic" == "yes" ]] && [[ ! -z $client_ip ]]; then
+    setup_forwarding_for_ip "$client_ip"
+  fi
+}
+
+setup_forwarding_for_clients() {
+  local ccd_files=$(find_ccd_files)
+  for ccd_file in $ccd_files; do
+    out "Handling: ${ccd_file}"
+    setup_forwarding_if_needed $ccd_file
+  done
 }
 
 run_openvpn() {
   make_tun_device
+  setup_forwarding_for_clients
   exec openvpn "$@"
 }
 

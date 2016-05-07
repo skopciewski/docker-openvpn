@@ -29,6 +29,6 @@ If you want to execute other command than `openvpn`, run docker container with `
   * server.conf - openvpn server config file
   * server certs - cacert.pem, server-cert.pem, server-key_wp.pem, dh.pem
   * ccd dir - with user files
-* internally, if in the ccd file is '`push "redirect-gateway"' directive, iptables is configured for forwarding traffic from that client
+* internally, if in the ccd file is `push "redirect-gateway"` directive, iptables is configured for forwarding traffic from that client
 * server should be configured to use port 1194/udp (remap using `-p 445:1194/udp`)
 

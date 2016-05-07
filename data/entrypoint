@@ -18,6 +18,10 @@ make_tun_device() {
   fi
 }
 
+find_ccd_files() {
+  echo $(find $OPENVPN_HOME/ccd -type f)
+}
+
 get_client_ip_from_ccd_file() {
   local ccd_file="$1"
   echo $(grep "^ifconfig-push" $ccd_file | cut -d' ' -f2)

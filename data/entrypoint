@@ -56,7 +56,7 @@ setup_forwarding_if_needed() {
 }
 
 setup_forwarding_for_clients() {
-  local ccd_files=find_ccd_files
+  local ccd_files=$(find_ccd_files)
   for ccd_file in $ccd_files; do
     out "Handling: ${ccd_file}"
     setup_forwarding_if_needed $ccd_file

@@ -70,7 +70,7 @@ setup_forwarding_for_clients() {
 run_openvpn() {
   make_tun_device
   setup_forwarding_for_clients
-  exec openvpn "$@"
+  openvpn "$@"
 }
 
 main() {

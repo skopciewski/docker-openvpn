@@ -1,13 +1,12 @@
 ## Usage
 
 ```bash
-    docker create --name openvpn_data -v /my/openvpn_dir:/opt/openvpn busybox
-    docker run -d --rm --name openvpn -p 1194:1194/udp --cap-add=NET_ADMIN --volumes-from openvpn_data skopciewski/openvpn
+    docker run -d --rm --name openvpn -p 1194:1194/udp --cap-add=NET_ADMIN -v /my/openvpn_dir:/mnt/openvpn skopciewski/openvpn
 ```
 
 ## Entrypoint
 
-Redirects all params to the `openvpn` command. Workdir is `/opt/openvpn`.
+Redirects all params to the `openvpn` command. Workdir is `/mnt/openvpn`.
 
 ### Default params
 
@@ -20,12 +19,12 @@ Redirects all params to the `openvpn` command. Workdir is `/opt/openvpn`.
 If you want to execute other command than `openvpn`, run docker container with `escto` as first param:
 
 ```bash
-    docker run -it --rm --name openvpn -p 1194:1194/udp --cap-add=NET_ADMIN --volumes-from openvpn_data skopciewski/openvpn escto sh
+    docker run -it --rm --name openvpn -p 1194:1194/udp --cap-add=NET_ADMIN -v /my/openvpn_dir:/mnt/openvpn skopciewski/openvpn escto sh
 ```
 
 ## Dependencies and requirements
 
-* mount /opt/openvpn with:
+* mount /mnt/openvpn with:
   * server.conf - openvpn server config file
   * server certs - cacert.pem, server-cert.pem, server-key_wp.pem, dh.pem
   * ccd dir - with user files

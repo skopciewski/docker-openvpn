@@ -1,6 +1,6 @@
-FROM gliderlabs/alpine:3.4
+FROM alpine:3.5
 
-RUN apk-install openvpn bash
+RUN apk add --no-cache openvpn bash
 COPY data/entrypoint /entrypoint
 RUN chmod 755 /entrypoint
 

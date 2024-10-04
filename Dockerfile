@@ -1,6 +1,6 @@
 FROM alpine:3.20
 
-RUN apk add --no-cache openvpn bash
+RUN apk add --no-cache openvpn bash iptables 
 COPY data/entrypoint /entrypoint
 RUN chmod 755 /entrypoint
 

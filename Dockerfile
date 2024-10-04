@@ -1,4 +1,4 @@
-FROM alpine:3.9
+FROM alpine:3.20
 
 RUN apk add --no-cache openvpn bash
 COPY data/entrypoint /entrypoint
